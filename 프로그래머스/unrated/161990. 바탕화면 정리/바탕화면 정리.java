@@ -7,7 +7,7 @@ class Solution {
         l = u = Integer.MAX_VALUE;
         d = r = Integer.MIN_VALUE;
 
-        for (int i = 0; i < height; i++) {
+        for (int i = 0; i < height; i++) { 
             for (int j = 0; j < width; j++) {
                 if (wallpaper[i].charAt(j) == '#') {
                     l = Math.min(j, l);
