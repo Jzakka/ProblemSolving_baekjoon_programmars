@@ -1,0 +1,10 @@
+import java.util.*;
+
+class Solution {
+    public String solution(String s) {
+        int max = Arrays.stream(s.split(" ")).mapToInt(Integer::valueOf).max().getAsInt();
+        int min = Arrays.stream(s.split(" ")).mapToInt(Integer::valueOf).min().getAsInt();
+
+        return String.format("%d %d", min, max);
+    }
+}
