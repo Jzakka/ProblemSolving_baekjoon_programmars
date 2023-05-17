@@ -2,9 +2,6 @@ import java.util.*;
 
 class Solution {
     private final int SHEEP = 0;
-    private final int WOLF = 1;
-
-    private Set<Node> available = new HashSet<>();
 
     public int solution(int[] info, int[][] edges) {
         Map<Integer, Node> nodes = new HashMap<>();
@@ -26,17 +23,12 @@ class Solution {
 
         Node root = nodes.get(0);
         LinkedHashSet<Node> nexts = new LinkedHashSet<>();
-        if (root.left != null) {
-            nexts.add(root.left);
-        }
-        if (root.right != null) {
-            nexts.add(root.right);
-        }
+        appendChildernToNextNodes(root, nexts);
 
-        return search(root, nexts, 0, 0);
+        return getMaxSheepCount(root, nexts, 0, 0);
     }
 
-    private int search(Node node,LinkedHashSet<Node> next, int sheepCnt, int wolfCnt) {
+    private int getMaxSheepCount(Node node, LinkedHashSet<Node> next, int sheepCnt, int wolfCnt) {
         if (node.TYPE == SHEEP) {
             sheepCnt++;
         } else {
@@ -48,17 +40,26 @@ class Solution {
 
         int max = sheepCnt;
         for (Node nextNode : next) {
-            LinkedHashSet<Node> copied = new LinkedHashSet<>(next);
-            copied.remove(nextNode);
-            if (nextNode.left != null) {
-                copied.add(nextNode.left);
-            }
-            if (nextNode.right != null) {
-                copied.add(nextNode.right);
-            }
-            max = Math.max(max, search(nextNode, copied, sheepCnt, wolfCnt));
+            LinkedHashSet<Node> copied = getNodes(next, nextNode);
+            max = Math.max(max, getMaxSheepCount(nextNode, copied, sheepCnt, wolfCnt));
         }
         return max;
+    }
+
+    private LinkedHashSet<Node> getNodes(LinkedHashSet<Node> next, Node nextNode) {
+        LinkedHashSet<Node> copied = new LinkedHashSet<>(next);
+        copied.remove(nextNode);
+        appendChildernToNextNodes(nextNode, copied);
+        return copied;
+    }
+
+    private void appendChildernToNextNodes(Node parent, LinkedHashSet<Node> copied) {
+        if (parent.left != null) {
+            copied.add(parent.left);
+        }
+        if (parent.right != null) {
+            copied.add(parent.right);
+        }
     }
 
     class Node {
@@ -67,7 +68,6 @@ class Solution {
 
         Node left;
         Node right;
-        Node parent;
 
         public Node(int NUMBER, int TYPE) {
             this.NUMBER = NUMBER;
@@ -76,16 +76,10 @@ class Solution {
 
         public void setLeft(Node left) {
             this.left = left;
-            left.setParent(this);
         }
 
         public void setRight(Node right) {
             this.right = right;
-            right.setParent(this);
-        }
-
-        private void setParent(Node parent) {
-            this.parent = parent;
         }
     }
 }
