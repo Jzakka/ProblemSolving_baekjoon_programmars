@@ -3,7 +3,8 @@ import java.lang.*;
 import java.util.stream.*;
 
 class Solution {
-    List<Node>[] adjacents;
+    List<Integer>[] adjacents;
+    Map<Long, Integer> costs = new HashMap();
     Set<Integer> gateSet = new LinkedHashSet();
     Set<Integer> summitSet = new LinkedHashSet();
     int[] DP;
@@ -29,108 +30,68 @@ class Solution {
             int src = path[0];
             int dest = path[1];
             int cost = path[2];
+            adjacents[src].add(dest);
+            adjacents[dest].add(src);
             
-            if(!(isGate(src) && isGate(dest)) && !(isSummit(src) && isSummit(dest))){
-                if(isGate(src) || isSummit(dest)){
-                    adjacents[src].add(new Node(dest,cost));    
-                }else if(isGate(dest) || isSummit(src)){
-                    adjacents[dest].add(new Node(src, cost));    
-                }else{
-                    adjacents[src].add(new Node(dest, cost));    
-                    adjacents[dest].add(new Node(src, cost));        
-                }
-            }
+            costs.put(cantorPair(src,dest), cost);
+            costs.put(cantorPair(dest,src), cost);
         }
-        
-            
-//     for(int i=0;i<adjacents.length;i++){
-//         List<Integer> adj = adjacents[i];
-//         System.out.print(i + ": ");
-//         if(adj != null){
-//         for(int a:adj){
-//             System.out.print(a + ", ");
-//         }    
-//         }
-        
-//         System.out.println();
-//     }
         
         return getResult();
     }
-
-    
-    boolean isGate(int node){
-        return gateSet.contains(node);
-    }
-    
-    boolean isSummit(int node){
-        return summitSet.contains(node);
-    }
     
     int[] getResult(){
-        Queue<Node> Q = new LinkedList();
+        TreeSet<Integer> heap = new TreeSet<>((a,b)->{
+            if(DP[a] == DP[b]){
+                return a -b;
+            }
+            return DP[a] - DP[b];
+        });
+        Set<Integer> visited = new HashSet();
         
-        Q.addAll(gateSet.stream().map(g->new Node(g, 0)).collect(Collectors.toList()));
+        heap.addAll(gateSet);
         
         int[] res = {-1, Integer.MAX_VALUE};
         
-        // printDP();
-        while(!Q.isEmpty()){
-            Node node = Q.poll();
-            
-            if(node.cost > DP[node.num]){
+        while(!heap.isEmpty()){
+            int node = heap.first();
+            heap.remove(node);
+                        
+            if(summitSet.contains(node)){
+                
+                // 결과 갱신
+                if(DP[node] < res[1] || (DP[node] == res[1] && node < res[0])){
+                    res[0] = node;
+                    res[1] = DP[node];
+                }
+                
                 continue;
             }
             
-            // System.out.printf("POLLED NODE : %d%n", node);
+            visited.add(node);
             
-             adjacents[node.num].stream()
-                .forEach(adj->{
-                    int cost = Math.max(DP[node.num], adj.cost);
-                    if(cost < DP[adj.num]){
-                        DP[adj.num] = cost;
-                        Q.add(new Node(adj.num, DP[adj.num]));
+             List<Integer> fringes = adjacents[node].stream()
+                .filter(adj->{
+                    int cost = Math.max(DP[node], costs.get(cantorPair(node, adj)));
+                    if(cost < DP[adj] && !gateSet.contains(adj) && !visited.contains(adj)){
+                        if(heap.contains(adj)){
+                            heap.remove(adj);
+                        }
+                        DP[adj] = cost;
+                        return true;
                     }
-                });
-                
+                    return false;
+                })
+                .collect(Collectors.toList());
             
-            // printDP(1);
-        }
-        
-        for(int s:summitSet){
-            if(DP[s] < res[1] || DP[s] == res[1] && s < res[0]){
-                res[0] = s;
-                res[1] = DP[s];
-            }
+            
+            heap.addAll(fringes);            
         }
         
         return res;
     }
     
-    static class Node{
-        int num;
-        int cost;
-        
-        Node(int num, int cost){
-            this.num = num;
-            this.cost = cost;
-        }
-    }
-    
-    void printDP(){
-        printDP(0);
-    }
-    
-    void printDP(int cnt){
-        System.out.print("\t".repeat(cnt));
-        for(int i=0;i< DP.length;i++){
-            System.out.printf("%02d |", i);
-        }
-        System.out.println();
-        System.out.print("\t".repeat(cnt));
-        for(int i=0;i< DP.length;i++){
-            System.out.printf("%02d |", DP[i] == Integer.MAX_VALUE ? -1:DP[i]);
-        }
-        System.out.println();
+    long cantorPair(long a, long b){
+        return (a+b)*(a+b+1)/2 + b;
     }
 }
