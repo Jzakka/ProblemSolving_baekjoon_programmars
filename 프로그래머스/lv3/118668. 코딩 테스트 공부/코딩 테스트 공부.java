@@ -23,11 +23,8 @@ class Solution {
     }
     final int N = 450;
     int[][] DP = new int[N][N];
-    // TreeMap<Integer, List<Study>> ordered = new TreeMap();
     List<Study> unordered = new ArrayList();
     {
-        // ordered.put(0, new ArrayList(Arrays.asList(new Study(0,0,1,0,1))));
-        // ordered.get(0).add(new Study(0,0,0,1,1));
         unordered.addAll(Arrays.asList(new Study(0,0,0,1,1), new Study(0,0,1,0,1)));
     }
     
@@ -48,10 +45,6 @@ class Solution {
             dest[0] = Math.max(problem[0], dest[0]);
             dest[1] = Math.max(problem[1], dest[1]);
         }
-        
-        // for(int reqAlp:ordered.keySet()){
-        //     Collections.sort(ordered.get(reqAlp));
-        // }
         
         if(dest[0] <= init[0] && dest[1] <= init[1]){ // destination의 x와 y모두 init보다 작거나 같은 경우
             return 0;
@@ -81,7 +74,6 @@ class Solution {
         scan(init, new int[]{N-1,N-1});
         
         // debugDP();
-        // while(DP[dest[0]][dest[1]] == Integer.MAX_VALUE);
         int res = Integer.MAX_VALUE;
         for(int i = dest[0];i<N;i++){
             for(int j = dest[1];j<N;j++){
@@ -131,20 +123,6 @@ class Solution {
                 }
             }
         }
-        // for(int reqAlp:ordered.keySet()){
-        //     if(reqAlp > alp){
-        //         break;
-        //     }
-        //     for(Study study:ordered.get(reqAlp)){
-        //         if(study.reqCop > cop){
-        //             break;
-        //         }
-        //         // 내가 공부할 수 있는 문제들로 DP테이블 채우기
-        //         if(alp+study.rewAlp < N && cop+study.rewCop < N){
-        //             DP[alp+study.rewAlp][cop+study.rewCop] = Math.min(DP[alp+study.rewAlp][cop+study.rewCop], DP[alp][cop]+study.cost); 
-        //         }
-        //     }
-        // }
     }
     
     void add(int[] problem){
@@ -158,13 +136,6 @@ class Solution {
                 problem[4]
             );
         unordered.add(study);
-        // if(ordered.containsKey(reqAlp)){
-        //     ordered.get(reqAlp).add(study);
-        // }else{
-        //     List<Study> studies = new ArrayList();
-        //     studies.add(study);
-        //     ordered.put(reqAlp, studies);
-        // }
     }
     
     void debugDP(){
