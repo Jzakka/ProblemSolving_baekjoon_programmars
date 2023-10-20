@@ -23,6 +23,10 @@ public class Main {
         Stack<Integer> stk = new Stack<>();
         int[] ans = new int[depths.length];
 
+        if (depths[0] != 1) {
+            res.append(-1);
+            return;
+        }
         for (int i = 1; i < depths.length; i++) {
             if (depths[i] > depths[i - 1] && depths[i] - depths[i - 1] > 1) {
                 res.append(-1);
