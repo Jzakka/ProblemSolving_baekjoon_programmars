@@ -9,7 +9,7 @@
 using namespace std;
 
 void solution(int k, vector<vector<pair<int, int>>>& graph){
-//  vector<bool> visited(graph.size(), false);
+  vector<bool> visited(graph.size());
 
   vector<ll> dist(graph.size(), INT32_MAX);
   auto comapre=  [&dist](int& a, int& b){
@@ -31,8 +31,8 @@ void solution(int k, vector<vector<pair<int, int>>>& graph){
 //    visited[poped] = true;
 
     for (const auto &next: graph[poped]){
-      if( // !visited[next.first] &&
-      dist[next.first] > dist[poped] + next.second){
+      if( //!visited[next.first] && 
+          dist[next.first] > dist[poped] + next.second){
         dist[next.first] = dist[poped] + next.second;
         pq.push(next.first);
       }
@@ -66,6 +66,12 @@ int main() {
     cin >> src >> dest >> weight;
 
     graph[src].push_back({dest, weight});
+  }
+
+  for (auto &incidents: graph){
+    sort(incidents.begin(), incidents.end(), [](const pair<int,int>& a, const pair<int,int>& b){
+      return a.second < b.second;
+    });
   }
 
   solution(k, graph);
