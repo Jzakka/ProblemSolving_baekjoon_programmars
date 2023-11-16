@@ -26,36 +26,36 @@ public class Main {
         }
 
         solution(graph, k);
-        
+
         printRes();
     }
 
     private static void solution(List<int[]>[] graph, int k) {
         int n = graph.length - 1;
-//        boolean[] visited = new boolean[n + 1];
         int[] dist = new int[n + 1];
         Arrays.fill(dist, Integer.MAX_VALUE);
-        PriorityQueue<Integer> pq = new PriorityQueue<>(Comparator.comparingInt(a -> dist[a]));
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
 
         dist[k] = 0;
-        pq.add(k);
+        pq.add(new int[]{k, 0});
 
         while (!pq.isEmpty()){
-            Integer poped = pq.poll();
+            int[] poped = pq.poll();
 
-//            if(visited[poped]){
-//                continue;
-//            }
-//            visited[poped] = true;
+            int nodeNum = poped[0];
+            int minDist = poped[1];
 
-            for (int[] adjacents : graph[poped]) {
+            if(dist[nodeNum] < minDist){
+                continue;
+            }
+
+            for (int[] adjacents : graph[nodeNum]) {
                 int incident = adjacents[0];
                 int weight = adjacents[1];
 
-                if (// !visited[incident] && 
-                        dist[incident] > dist[poped] + weight) {
-                    dist[incident] = dist[poped] + weight;
-                    pq.add(incident);
+                if (dist[incident] > dist[nodeNum] + weight) {
+                    dist[incident] = dist[nodeNum] + weight;
+                    pq.add(new int[]{incident, dist[incident]});
                 }
             }
         }
