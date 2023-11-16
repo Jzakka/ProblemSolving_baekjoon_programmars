@@ -43,8 +43,6 @@ public class Main {
         PQ.add(new long[]{1, 0, 0});
         DP[1][0] = 0;
 
-        boolean[][] visited = new boolean[n + 1][k + 1];
-
         while (!PQ.isEmpty()) {
             long[] state = PQ.poll();
 
@@ -52,20 +50,19 @@ public class Main {
             long weight = state[1];
             int asphaltCount = (int) state[2];
 
-            if (visited[currentCity][asphaltCount]) {
+            if(DP[currentCity][asphaltCount] < weight){
                 continue;
             }
-
-            visited[currentCity][asphaltCount] = true;
-            DP[currentCity][asphaltCount] = weight;
 
             for (int[] next : graph[currentCity]) {
                 int nextCity = next[0];
                 int cost = next[1];
-                if (!visited[nextCity][asphaltCount] && weight + cost < DP[nextCity][asphaltCount]) {
+                if (weight + cost < DP[nextCity][asphaltCount]) {
+                    DP[nextCity][asphaltCount] = weight + cost;
                     PQ.add(new long[]{nextCity, weight + cost, asphaltCount});
                 }
-                if (asphaltCount + 1 <= k && !visited[nextCity][asphaltCount + 1] && weight < DP[nextCity][asphaltCount + 1]) {
+                if (asphaltCount + 1 <= k && weight < DP[nextCity][asphaltCount + 1]) {
+                    DP[nextCity][asphaltCount + 1] = weight;
                     PQ.add(new long[]{nextCity, weight, asphaltCount + 1});
                 }
             }
