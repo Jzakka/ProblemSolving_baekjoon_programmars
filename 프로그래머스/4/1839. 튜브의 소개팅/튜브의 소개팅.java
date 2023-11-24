@@ -1,60 +1,50 @@
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
-
-public class Solution {
-    class Coord{
-        int x,y;
-
-        public Coord(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
+class Solution {
+    long[][][] DP;
+    int[] dx = {-1, 0, 0, 1};
+    int[] dy = {0, -1, 1, 0};
     public int[] solution(int m, int n, int s, int[][] time_map) {
-        int[] dx = {-1, 0, 0, 1};
-        int[] dy = {0, -1, 1, 0};
-        final int MAX_PATH_LEN = m * n;
-        long[][][] DP = new long[m][n][MAX_PATH_LEN + 1];
+        DP = new long[m][n][m * n];
         for (int i = 0; i < m; i++) {
-            for (int i1 = 0; i1 < n; i1++) {
-                for (int i2 = 0; i2 <= MAX_PATH_LEN; i2++) {
-                    DP[i][i1][i2] = s + 1L;
+            for (int j = 0; j < n; j++) {
+                for (int k = 0; k < n * m; k++) {
+                    DP[i][j][k] = s + 1;
                 }
             }
         }
-
         DP[0][0][0] = 0;
 
-        for (int k = 1; k <= MAX_PATH_LEN; k++) {
+        for (int path = 1; path < n * m; path++) {
             for (int i = 0; i < m; i++) {
                 for (int j = 0; j < n; j++) {
-                    if (time_map[i][j] != -1) {
-                        for (int d = 0; d < 4; d++) {
-                            int px = i + dx[d];
-                            int py = j + dy[d];
+                    if (time_map[i][j] == -1) {
+                        continue;
+                    }
+                    long minVal = Integer.MAX_VALUE;
 
-                            if (available(px, py, m, n, time_map)) {
-                                DP[i][j][k] = Math.min(DP[i][j][k], DP[px][py][k - 1] + time_map[i][j]);
-                            }
+                    for (int d = 0; d < 4; d++) {
+                        int nx = i + dx[d];
+                        int ny = j + dy[d];
+
+                        if (available(nx, ny, m, n)) {
+                            minVal = Math.min(minVal, DP[nx][ny][path - 1]);
                         }
                     }
+
+                    DP[i][j][path] = Math.min(DP[i][j][path], minVal + time_map[i][j]);
                 }
             }
         }
 
-        int k = 0;
-        for (; k <= MAX_PATH_LEN; k++) {
-            if (DP[m - 1][n - 1][k] <= s) {
-                break;
+        for (int i = 0; i < n * m; i++) {
+            if (DP[m - 1][n - 1][i] <= s) {
+                return new int[]{i, (int) DP[m - 1][n - 1][i]};
             }
         }
 
-        return new int[]{k, (int) DP[m - 1][n - 1][k]};
+        return null;
     }
 
-    private boolean available(int x, int y, int m, int n, int[][] time_map) {
-        return 0 <= x && x < m && 0 <= y && y < n && time_map[x][y] != -1;
+    private boolean available(int x, int y, int m, int n) {
+        return 0 <= x && x < m && 0 <= y && y < n;
     }
 }
