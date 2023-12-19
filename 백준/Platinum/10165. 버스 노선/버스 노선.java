@@ -17,11 +17,17 @@ public class Main {
             course[i] = getInts();
         }
 
+//        int n = 1_000_000_000;
+//        int[][] course = new int[500_000][];
+//        for (int i = 0; i < 500_000; i++) {
+//            course[i] = new int[]{n - i - 1, i};
+//        }
+
         solution(n, course);
         printRes();
     }
 
-    static class Course implements Comparable<Course>{
+    static class Course implements Comparable<Course> {
         int start;
         int end;
         int num;
@@ -57,52 +63,37 @@ public class Main {
 
     private static void solution(int n, int[][] course) {
         Course[] courses = new Course[course.length];
+
+        int last = -1;
+
         for (int i = 0; i < courses.length; i++) {
             int s = course[i][0];
             int e = course[i][1];
+            if (s > e) {
+                last = Math.max(last, e);
+                e += n;
+            }
 
             courses[i] = new Course(s, e, i + 1);
         }
 
-        // key : val
-        // start: {end, num}
-        TreeMap<Integer, int[]> Q1 = new TreeMap<>(); // 내가 들어갈 수 있니 Q
-        TreeMap<Integer, int[]> Q2 = new TreeMap<>(); // 내가 들어가고 나서 삭제해야 하는 Q
+        // {end, num}
+        Deque<int[]> Q = new ArrayDeque<>();
 
         Arrays.sort(courses);
-        TreeSet<Integer> ans = IntStream.rangeClosed(1, courses.length).boxed().collect(Collectors.toCollection(TreeSet::new));
 
         for (Course c : courses) {
-            if (c.start <= c.end) {
-                if (!Q1.isEmpty() && Q1.lastEntry().getValue()[0] >= c.end) {
-                    ans.remove(c.num);
-                } else {
-                    Q1.put(c.start, new int[]{c.end, c.num});
-                    Q2.put(c.start + n, new int[]{c.end + n, c.num});
-                }
-            } else {
-                if (!Q1.isEmpty() && Q1.lastEntry().getValue()[0] >= c.end + n) {
-                    ans.remove(c.num);
-                } else {
-                    // 난 들어가고 기존 것들을 삭제해야 함
-                    while (!Q2.isEmpty()) {
-                        Map.Entry<Integer, int[]> ceilingEntry = Q2.ceilingEntry(c.start);
-                        if (ceilingEntry != null && ceilingEntry.getValue()[0] <= c.end + n) {
-                            int ceilNum = ceilingEntry.getValue()[1];
-                            Q2.remove(ceilingEntry.getKey());
-                            ans.remove(ceilNum);
-                        } else {
-                            break;
-                        }
-                    }
-                    int[] value = {c.end + n, c.num};
-                    Q1.put(c.start, value);
-                    Q2.put(c.start, value);
-                }
+            if (Q.isEmpty() || Q.peekLast()[0] < c.end) {
+                Q.offerLast(new int[]{c.end, c.num});
             }
         }
 
-        ans.forEach(i -> res.append(i).append(" "));
+        while (Q.peekFirst()[0] <= last) {
+            Q.pollFirst();
+        }
+
+        Q.stream().mapToInt(i -> i[1]).sorted().forEach(i -> res.append(i).append(" "));
+
     }
 
     private static int[] getInts() throws IOException {
@@ -124,6 +115,10 @@ public class Main {
 }
 
 /*
-6
-1 1 1 3 3 3
+8
+4
+7 0
+6 1
+5 2
+4 3
  */
