@@ -1,38 +1,36 @@
 import java.util.*;
+import static java.lang.System.*;
 
 class Solution {
-    Deque<Integer> descentQueue = new ArrayDeque<>();
-
+    Deque<Integer> DQ = new ArrayDeque();
     public int solution(int[] stones, int k) {
-        int l = 0;
-        int r = 0;
-
-        for (; r < k; r++) {
-            updateDeque(stones[r]);
+        int cursor=0;
+        for(;cursor<k;cursor++){
+            addDeque(stones[cursor]);
         }
-
+        
         int ans = Integer.MAX_VALUE;
-        while (r <= stones.length) {
-            Integer sectionMax = descentQueue.getFirst();
-            ans = Math.min(ans, sectionMax);
-
-            if (sectionMax == stones[l++]) {
-                descentQueue.pollFirst();
+        while(cursor <= stones.length){
+            int leader = DQ.getFirst();
+            ans = Math.min(ans, leader);
+            
+            if(stones[cursor-k] == leader){
+                DQ.pollFirst();
             }
-
-            if (r < stones.length) {
-                updateDeque(stones[r]);
+            
+            if(cursor < stones.length){
+                addDeque(stones[cursor]);    
             }
-            r++;
+            cursor++;
         }
-
+        
         return ans;
     }
-
-    private void updateDeque(int stone) {
-        while (!descentQueue.isEmpty() && descentQueue.getLast() < stone) {
-            descentQueue.pollLast();
+    
+    void addDeque(int num){
+        while(!DQ.isEmpty() && DQ.getLast() < num){
+            DQ.pollLast();
         }
-        descentQueue.offerLast(stone);
+        DQ.offerLast(num);
     }
 }
