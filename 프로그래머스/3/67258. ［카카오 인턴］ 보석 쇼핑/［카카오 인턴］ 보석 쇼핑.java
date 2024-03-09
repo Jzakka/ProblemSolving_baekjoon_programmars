@@ -1,49 +1,45 @@
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 class Solution {
-    Map<String, Integer> gemCounts = new HashMap<>();
-
+    Map<String, Integer> count = new HashMap();
+    
     public int[] solution(String[] gems) {
-        int gemKinds = (int) Arrays.stream(gems).distinct().count();
-
-        int r = -1, l = 0;
-
-        int ansLen = Integer.MAX_VALUE;
-        int ansStart = 0;
-        int ansEnd = 0;
-
-        while (r < gems.length) {
-            if (gemCounts.size() < gemKinds) {
-                r++;
-                if (r < gems.length) {
-                    mapAdd(gems[r]);
-                }
-            } else {
-                if (r - l + 1 < ansLen) {
-                    ansLen = r - l + 1;
-                    ansStart = l + 1;
-                    ansEnd = r + 1;
-                }
-                mapSub(gems[l++]);
+        int gemSize = (int)Arrays.stream(gems).distinct().count();
+        
+        int s = 0;
+        int e = 0;
+        
+        int[] ans = {0, 50_000_000};
+        while(e < gems.length){
+            mapadd(gems[e]);
+            while(s<e && count.get(gems[s]) > 1){
+                mapsub(gems[s]);
+                s++;
             }
+            
+            if(count.size() == gemSize && ans[1] - ans[0] + 1> e - s + 1){
+                ans[0] = s+1;
+                ans[1] = e + 1;
+            }
+            e++;
         }
-
-        return new int[]{ansStart, ansEnd};
+        
+        return ans;
     }
-
-    void mapAdd(String key) {
-        if (!gemCounts.containsKey(key)) {
-            gemCounts.put(key, 1);
-        } else {
-            gemCounts.put(key, gemCounts.get(key) + 1);
+    
+    void mapadd(String key){
+        if(count.containsKey(key)){
+            count.put(key, count.get(key) + 1);
+            return;
         }
+        count.put(key, 1);
     }
-
-    void mapSub(String key) {
-        gemCounts.put(key, gemCounts.get(key) - 1);
-        if (gemCounts.get(key) == 0) {
-            gemCounts.remove(key);
+    
+    void mapsub(String key){
+        count.put(key, count.get(key) - 1);
+        if(count.get(key) == 0){
+            count.remove(key);
         }
     }
 }
