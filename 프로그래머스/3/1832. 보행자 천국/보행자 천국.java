@@ -1,41 +1,34 @@
-import java.util.*;
+import static java.lang.System.*;
 
 class Solution {
     int MOD = 20170805;
+    final int LEFT = 0;
+    final int UP = 1;
     int[][][] DP;
-    final int DOWN = 0;
-    final int RIGHT = 1;
-
     public int solution(int m, int n, int[][] cityMap) {
+        //DP[i][j][d] : (i,j)를 d방향에서 진입하는 경우의 수
         DP = new int[m][n][2];
-
-        for (int i = 0; i < n && cityMap[0][i] != 1; i++) {
-            DP[0][i][RIGHT] = 1;
+        
+        for(int i=0;i<n && cityMap[0][i] != 1;i++){
+            DP[0][i][LEFT] = 1;
         }
-
-        for (int i = 0; i < m && cityMap[i][0] != 1; i++) {
-            DP[i][0][DOWN] = 1;
+        for(int i=0;i<m && cityMap[i][0] != 1;i++){
+            DP[i][0][UP] = 1;
         }
-
-        for (int i = 1; i < m; i++) {
-            for (int j = 1; j < n; j++) {
-                if (cityMap[i][j] != 1) {
-                    DP[i][j][DOWN] = move(cityMap, i - 1, j, DOWN);
-                    DP[i][j][RIGHT] = move(cityMap, i, j - 1, RIGHT);
-                }
+        
+        for(int i=1;i<m;i++){
+            for(int j=1;j<n;j++){
+                if(cityMap[i][j] == 1) { continue; }
+                
+                DP[i][j][UP] = (cityMap[i-1][j] == 2) ? DP[i-1][j][UP] : sum(i-1, j);
+                DP[i][j][LEFT] = (cityMap[i][j-1] == 2) ? DP[i][j-1][LEFT] : sum(i, j-1);          
             }
         }
-
-        return Arrays.stream(DP[m - 1][n - 1]).sum() % MOD;
+        
+        return sum(m-1, n-1);
     }
-
-    private int move(int[][] cityMap, int x, int y, int direction) {
-        if (cityMap[x][y] == 0) {
-            return (DP[x][y][DOWN] + DP[x][y][RIGHT]) % MOD;
-        } else if (cityMap[x][y] == 2) {
-            return DP[x][y][direction];
-        }
-
-        return 0;
+    
+    int sum(int x,int y){
+        return (DP[x][y][0] + DP[x][y][1]) % MOD;
     }
 }
